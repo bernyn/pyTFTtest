@@ -20,6 +20,10 @@
 # You should have received a copy of the GNU General Public License
 # along with pyOBD; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Edited By Bernardo Plaza September 2017, including proper obd 
+# initialization sequence
+#
 ###########################################################################
 
 import serial
@@ -110,12 +114,19 @@ class OBDPort:
             self.State = 0
             return None
          
-         debug_display(self._notify_window, 2, "atz response:" + self.ELMver)
+         debug_display(self._notify_window, 2, "atz (reset) response:" + self.ELMver)
          self.send_command("ate0")  # echo off
-         debug_display(self._notify_window, 2, "ate0 response:" + self.get_result())
+         debug_display(self._notify_window, 2, "ate0 (echo off) response:" + self.get_result())
+         self.send_command("atl0")  # line feed off
+         debug_display(self._notify_window, 2, "ate0 (Line feed off) response:" + self.get_result())
+         self.send_command("ats0")  # spaces off
+         debug_display(self._notify_window, 2, "ate0 (Spaces off) response:" + self.get_result())
+         #self.send_command("ath0")  # headers off
+         #debug_display(self._notify_window, 2, "ate0 (Headers off) response:" + self.get_result())      
+         sefl.send_command("ATSP5") #select auto protocol
+         debug_display(self._notify_window, 2, "atsp0 (Fast init ISO_14230_4_KWP_FAST) response:" + self.get_result())
+         
          self.send_command("0100")
-         sefl.send_command("ATSP0") #select auto protocol
-         wx.__PostEvent(self._notify_window, DebuggEvent ([2, "ATSP0 response: "+ self.get_result()]))
          ready = self.get_result()
          
          if(ready is None):
